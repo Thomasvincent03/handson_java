@@ -16,5 +16,5 @@ jobs:
     steps:
       - name: git checkout
         uses: actions/checkout@v4
-        with:
+#        with:
 #          token: ${{ secrets.MY_GITHUB_TOKEN }}
