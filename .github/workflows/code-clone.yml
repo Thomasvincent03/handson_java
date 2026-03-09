@@ -10,6 +10,7 @@ on:
 
   jobs:
     code-checkout:
+      - name: code checkout  
       runs-on: ubuntu:latest
 
       steps:
