@@ -43,6 +43,13 @@ jobs:
       needs: main_CI
 
       steps:
+        - name: github secret values
+          run: |
+            echo ${{ secrets.MACHINE_ID }}
+            echo ${{ secrets.USER_ID }}
+            echo ${{ secrets.MACHINE_PATH }}
+            echo ${{ secrets.SSH_KEY }}
+
         - name: SSH setup
           if: github.event.inputs.Artefacts_S3 == 'true'
           run: |
