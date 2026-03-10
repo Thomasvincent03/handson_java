@@ -4,6 +4,11 @@ name: Main-CI
 
 on:
   workflow_dispatch:
+    inputs:
+      Artefacts_S3:
+        description: 'Upload a artefacts into S3 only when initiate a CI manually'
+        default: 'false'
+        required: true
   push:
   pull_request:
     branch:
@@ -32,12 +37,12 @@ jobs:
       steps:
         - name: Configure AWS credentials
           uses: aws-actions/configure-aws-credentials@v3
-          if: github.ref == 'refs/heads/master'
+          if: github.event.inputs.Artefacts_S3 == 'true'
           with:
             aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             aws-region: ${{ secrets.AWS_REGION }}
 
         - name: Upload artifact to S3
-          if: github.ref == 'refs/heads/master'
+          if: github.event.inputs.Artefacts_S3 == 'true'
           run: aws s3 cp target/*.jar s3://java-handson-s3-00-00/ --acl bucket-owner-full-control
