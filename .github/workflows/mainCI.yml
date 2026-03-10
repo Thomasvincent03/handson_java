@@ -31,7 +31,7 @@ jobs:
 
       - name: Upload Artefacts
         if: github.event.inputs.Artefacts_S3 == 'true'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: java_jar
           path: target/*.jar
