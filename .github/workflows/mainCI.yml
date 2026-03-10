@@ -29,6 +29,14 @@ jobs:
       - name: File verification
         run: ls -lrt target/*
 
+      - name: Upload Artefacts
+        if: github.event.inputs.Artefacts_S3 == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: java_jar
+          path: target/*.jar
+          retention-days: 1
+
   upload_Artefacts:
       name: Upload Artefacts
       runs-on: ubuntu-latest
@@ -42,6 +50,12 @@ jobs:
             echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
             chmod 600  ~/.ssh/id_ed25519
         
+        - name: Download Artefacts
+          if: github.event.inputs.Artefacts_S3 == 'true'
+          uses: actions/download-artifact@v3
+          with:
+            name: java_jar
+            path: target/
         - name: Upload File to Local
           if: github.event.inputs.Artefacts_S3 == 'true'
           run: scp target/*.jar ${{ secrets.USER_ID }}@${{ secrets.MACHINE_ID }}:${{ secrets.MACHINE_PATH }}
