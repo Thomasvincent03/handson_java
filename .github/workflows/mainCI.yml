@@ -1,0 +1,28 @@
+# Entire java Pipeline
+
+name: Main-CI
+
+on:
+  push:
+  pull_request:
+    branch:
+      - master
+
+jobs:
+  main_CI:
+    name: Main CI  
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: git checkout
+        uses: actions/checkout@v4
+
+      - name: Maven Test
+        run: mvn test
+
+      - name: Maven build
+        run: mvn build
+
+      - name: File verification
+        run: ls -lrt targets/*
+
