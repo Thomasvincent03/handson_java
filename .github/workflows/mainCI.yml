@@ -43,4 +43,5 @@ jobs:
             chmod 600  ~/.ssh/id_ed25519
         
         - name: Upload File to Local
+          if: github.event.inputs.Artefacts_S3 == 'true'
           run: scp target/*.jar ${{ secrets.USER_ID }}@${{ secrets.MACHINE_ID }}:${{ secrets.MACHINE_PATH }}
