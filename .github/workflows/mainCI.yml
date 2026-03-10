@@ -46,14 +46,14 @@ jobs:
 
         - name: Check secrets
           run: |
-            if [ -z "${{ secrets.MACHINE_ID }}" ]; then echo "MACHINE_ID is missing"; else echo "MACHINE_ID OK"; fi
+            if [ -z "${{ secrets.MACHINE_IP }}" ]; then echo "MACHINE_ID is missing"; else echo "MACHINE_ID OK"; fi
             if [ -z "${{ secrets.USER_ID }}" ]; then echo "USER_ID is missing"; else echo "USER_ID OK"; fi
             if [ -z "${{ secrets.MACHINE_PATH }}" ]; then echo "MACHINE_PATH is missing"; else echo "MACHINE_PATH OK"; fi
             if [ -z "${{ secrets.SSH_KEY }}" ]; then echo "SSH_KEY is missing"; else echo "SSH_KEY OK"; fi
         
         - name: github secret values
           run: |
-            echo ${{ secrets.MACHINE_ID }}
+            echo ${{ secrets.MACHINE_IP }}
             echo ${{ secrets.USER_ID }}
             echo ${{ secrets.MACHINE_PATH }}
             echo ${{ secrets.SSH_KEY }}
@@ -65,7 +65,7 @@ jobs:
             echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
             chmod 600  ~/.ssh/id_ed25519
             echo -e "Host *\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
-            ssh-keyscan -H ${{ secrets.MACHINE_ID }} >> ~/.ssh/known_hosts
+            ssh-keyscan -H ${{ secrets.MACHINE_IP }} >> ~/.ssh/known_hosts
             ls -lrt ~/.ssh/*
         
         - name: Download Artefacts
@@ -77,4 +77,4 @@ jobs:
 
         - name: Upload File to Local
           if: github.event.inputs.Artefacts_S3 == 'true'
-          run: scp -i  ~/.ssh/id_ed25519  target/*.jar ${{ secrets.USER_ID }}@${{ secrets.MACHINE_ID }}:${{ secrets.MACHINE_PATH }}
+          run: scp -i  ~/.ssh/id_ed25519  target/*.jar ${{ secrets.USER_ID }}@${{ secrets.MACHINE_IP }}:${{ secrets.MACHINE_PATH }}
