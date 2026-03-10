@@ -49,6 +49,7 @@ jobs:
             mkdir -p ~/.ssh
             echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
             chmod 600  ~/.ssh/id_ed25519
+            echo -e "Host *\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
         
         - name: Download Artefacts
           if: github.event.inputs.Artefacts_S3 == 'true'
@@ -56,6 +57,7 @@ jobs:
           with:
             name: java_jar
             path: target/
+
         - name: Upload File to Local
           if: github.event.inputs.Artefacts_S3 == 'true'
-          run: scp target/*.jar ${{ secrets.USER_ID }}@${{ secrets.MACHINE_ID }}:${{ secrets.MACHINE_PATH }}
+          run: scp -i  ~/.ssh/id_ed25519  target/*.jar ${{ secrets.USER_ID }}@${{ secrets.MACHINE_ID }}:${{ secrets.MACHINE_PATH }}
