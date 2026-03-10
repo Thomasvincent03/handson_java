@@ -17,12 +17,9 @@ jobs:
       - name: git checkout
         uses: actions/checkout@v4
 
-      - name: Maven Test
-        run: mvn test
-
-      - name: Maven build
-        run: mvn build
+      - name: Maven deploy
+        run: mvn clean install
 
       - name: File verification
-        run: ls -lrt targets/*
+       run: ls -lrt targets/*
 
