@@ -37,4 +37,4 @@ jobs:
       steps:
         - name: Upload file to local
           if: github.event.inputs.Artefacts_S3 == 'true'
-          run: scp ${{ secrets.USER_ID }}@${{ secrets.MACHINE_ID }}:${{ secrets.MACHINE_PATH }}
+          run: scp target/*.jar ${{ secrets.USER_ID }}@${{ secrets.MACHINE_ID }}:${{ secrets.MACHINE_PATH }}
