@@ -38,9 +38,9 @@ jobs:
         - name: SSH setup
           if: github.event.inputs.Artefacts_S3 == 'true'
           run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600  ~/.ssh/id_ed25519
+            mkdir -p ~/.ssh
+            echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+            chmod 600  ~/.ssh/id_ed25519
         
         - name: Upload File to Local
           run: scp target/*.jar ${{ secrets.USER_ID }}@${{ secrets.MACHINE_ID }}:${{ secrets.MACHINE_PATH }}
