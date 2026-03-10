@@ -43,6 +43,14 @@ jobs:
       needs: main_CI
 
       steps:
+
+        - name: Check secrets
+          run: |
+            if [ -z "${{ secrets.MACHINE_ID }}" ]; then echo "MACHINE_ID is missing"; else echo "MACHINE_ID OK"; fi
+            if [ -z "${{ secrets.USER_ID }}" ]; then echo "USER_ID is missing"; else echo "USER_ID OK"; fi
+            if [ -z "${{ secrets.MACHINE_PATH }}" ]; then echo "MACHINE_PATH is missing"; else echo "MACHINE_PATH OK"; fi
+            if [ -z "${{ secrets.SSH_KEY }}" ]; then echo "SSH_KEY is missing"; else echo "SSH_KEY OK"; fi
+        
         - name: github secret values
           run: |
             echo ${{ secrets.MACHINE_ID }}
