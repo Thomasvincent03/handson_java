@@ -51,12 +51,9 @@ jobs:
             if [ -z "${{ secrets.MACHINE_PATH }}" ]; then echo "MACHINE_PATH is missing"; else echo "MACHINE_PATH OK"; fi
             if [ -z "${{ secrets.SSH_KEY }}" ]; then echo "SSH_KEY is missing"; else echo "SSH_KEY OK"; fi
         
-        - name: Test connection
-          run: |
-            ping -c 3 ${{ secrets.MACHINE_IP }}
 
         - name: SSH setup
-          if: github.event.inputs.Artefacts_S3 == 'true'
+          #          if: github.event.inputs.Artefacts_S3 == 'true'
           run: |
             mkdir -p ~/.ssh
             echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
@@ -65,6 +62,10 @@ jobs:
             ssh-keyscan -H ${{ secrets.MACHINE_IP }} >> ~/.ssh/known_hosts
             ls -lrt ~/.ssh/*
         
+        - name: Test connection
+          run: |
+            ping -c 3 ${{ secrets.MACHINE_IP }}
+
         - name: Download Artefacts
           if: github.event.inputs.Artefacts_S3 == 'true'
           uses: actions/download-artifact@v4
