@@ -52,7 +52,7 @@ jobs:
         
         - name: Download Artefacts
           if: github.event.inputs.Artefacts_S3 == 'true'
-          uses: actions/download-artifact@v3
+          uses: actions/download-artifact@v4
           with:
             name: java_jar
             path: target/
