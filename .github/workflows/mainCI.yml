@@ -1,36 +1,40 @@
-# Entire java Pipeline
-
 name: Main-CI
 
 on:
   workflow_dispatch:
     inputs:
       Artefacts_S3:
-        description: 'Upload a docker image to dockerhub when initiate a CI manually'
+        description: 'Upload a docker image to dockerhub when initiating CI manually'
         default: 'false'
         required: true
   push:
   pull_request:
-    branch:
+    branches:
       - master
 
 jobs:
   main_CI:
-    name: Main CI  
+    name: Main CI
     runs-on: ubuntu-latest
 
     steps:
-      - name: git checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Maven deploy
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Maven build
         run: mvn clean install
 
       - name: File verification
         run: ls -lrt target/*
 
       - name: Upload Artefacts
-        if: github.event.inputs.Artefacts_S3 == 'true'
+        if: ${{ github.event.inputs.Artefacts_S3 == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: java_jar
@@ -38,33 +42,31 @@ jobs:
           retention-days: 1
 
   upload_Artefacts:
-      name: Upload Artefacts
-      runs-on: ubuntu-latest
-      needs: main_CI
+    name: Upload Docker Image
+    runs-on: ubuntu-latest
+    needs: main_CI
 
-      steps:
+    steps:
+      - name: Download Artefacts
+        if: ${{ github.event.inputs.Artefacts_S3 == 'true' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: java_jar
+          path: target/
 
-        - name: Download Artefacts
-          if: github.event.inputs.Artefacts_S3 == 'true'
-          uses: actions/download-artifact@v4
-          with:
-            name: java_jar
-            path: target/
+      - name: Login to Docker Hub
+        if: ${{ github.event.inputs.Artefacts_S3 == 'true' }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-        - name: login to dockerhub
-            if: github.event.inputs.Artefacts_S3 == 'true'
-            uses: docker/login-action@v3
-            with:
-              user_nmae: ${{ secrets.DOCKERHUB_USERNAME }}
-              password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build Docker Image
+        if: ${{ github.event.inputs.Artefacts_S3 == 'true' }}
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.run_number }} .
 
-        - name: Build Docker Image
-            if: github.event.inputs.Artefacts_S3 == 'true'
-            run: |
-              docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.run_number }} .
-
-        - name: Push Docker Image
-            if: github.event.inputs.Artefacts_S3 == 'true'
-            run: |
-              docker push ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.run_number }}
-
+      - name: Push Docker Image
+        if: ${{ github.event.inputs.Artefacts_S3 == 'true' }}
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.run_number }}
