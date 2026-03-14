@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       Artefacts_S3:
-        description: 'Upload a artefacts into S3 only when initiate a CI manually'
+        description: 'Upload a docker image to dockerhub when initiate a CI manually'
         default: 'false'
         required: true
   push:
@@ -44,28 +44,6 @@ jobs:
 
       steps:
 
-        - name: Check secrets
-          run: |
-            if [ -z "${{ secrets.MACHINE_IP }}" ]; then echo "MACHINE_ID is missing"; else echo "MACHINE_ID OK"; fi
-            if [ -z "${{ secrets.USER_ID }}" ]; then echo "USER_ID is missing"; else echo "USER_ID OK"; fi
-            if [ -z "${{ secrets.MACHINE_PATH }}" ]; then echo "MACHINE_PATH is missing"; else echo "MACHINE_PATH OK"; fi
-            if [ -z "${{ secrets.SSH_KEY }}" ]; then echo "SSH_KEY is missing"; else echo "SSH_KEY OK"; fi
-        
-
-        - name: SSH setup
-          #          if: github.event.inputs.Artefacts_S3 == 'true'
-          run: |
-            mkdir -p ~/.ssh
-            echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
-            chmod 600  ~/.ssh/id_ed25519
-            echo -e "Host *\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
-            #            ssh-keyscan -H ${{ secrets.MACHINE_IP }} >> ~/.ssh/known_hosts
-            ls -lrt ~/.ssh/*
-        
-        - name: Test connection
-          run: |
-            ping -c 3 ${{ secrets.MACHINE_IP }}
-
         - name: Download Artefacts
           if: github.event.inputs.Artefacts_S3 == 'true'
           uses: actions/download-artifact@v4
@@ -73,6 +51,18 @@ jobs:
             name: java_jar
             path: target/
 
-        - name: Upload File to Local
-          if: github.event.inputs.Artefacts_S3 == 'true'
-          run: scp -i  ~/.ssh/id_ed25519  target/*.jar ${{ secrets.USER_ID }}@${{ secrets.MACHINE_IP }}:${{ secrets.MACHINE_PATH }}
+        - name: login to dockerhub
+            if: github.event.inputs.Artefacts_S3 == 'true'
+            uses: docker/login-action@v3
+            with:
+              user_nmae: ${{ secrets.DOCKERHUB_USERNAME }}
+              password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+        - name: Build Docker Image
+          run: |
+            docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.run_number }} .
+
+        - name: Push Docker Image
+          run: |
+            docker push ${{ secrets.DOCKERHUB_USERNAME }}/myapp:${{ github.run_number }}
+
