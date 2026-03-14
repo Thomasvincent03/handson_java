@@ -61,6 +61,10 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Listout files
+        run: |
+          ls -lrt *
+
       - name: Build Docker Image
         if: ${{ github.event.inputs.Artefacts_S3 == 'true' }}
         run: |
