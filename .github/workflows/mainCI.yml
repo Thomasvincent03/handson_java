@@ -63,7 +63,7 @@ jobs:
 
       - name: Listout files
         run: |
-          ls -lrt *
+          ls -R
 
       - name: Build Docker Image
         if: ${{ github.event.inputs.Artefacts_S3 == 'true' }}
